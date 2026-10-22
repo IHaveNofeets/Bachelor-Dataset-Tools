@@ -7,6 +7,7 @@ Tools for building the ground truth of an image dataset. They work on folders of
 | `groundTruth - Tobias.py` | Annotation tool (OpenCV window), with a *covered* mark, a bent/closed split tool and an **Other** class |
 | `groundTruth - Claus.py` | Annotation tool (OpenCV window), with a straight-line split, `--redraft-all` and `--default-class` |
 | `changeClass.py` | Batch script that changes every object of one class to another class in many `truth.json` files |
+| `splitDataset.py` | Splits the dataset into training data and test data by moving random image folders |
 
 The two `groundTruth` files are two variants of the same tool. See [Differences between the two variants](#differences-between-the-two-variants).
 
@@ -135,6 +136,28 @@ python changeClass.py "data\out" --r --i="2x4 brick" --o="gray rock" --dry-run
 Close the annotation window before running it. The window keeps its own copy of the open image and would write it back over the change.
 
 Changed files lose their `draft` marker, so a later `--redraft` leaves them alone.
+
+## Splitting into training and test data
+
+`splitDataset.py` picks random image folders for the test data and moves all the others to the training data.
+
+```
+python splitDataset.py "data\out" "data\train" "data\test" 100
+python splitDataset.py "data\out" "data\train" "data\test" 20% --seed 1 --dry-run
+```
+
+The arguments are, in this order: the folder with all the data, the training folder, the test folder and how many image folders go to the test data (a number, or a percentage such as `20%`).
+
+A data point is an image folder, a folder that contains an `org.png`. It is moved as a whole, with its `truth.json`. The image folders are found anywhere below the source folder, so `data\out` with its test folders works as well as a folder of image folders. Each one keeps its path relative to the source folder, so `data\train\test1 - 2x4 brick\image_0001` comes from `data\out\test1 - 2x4 brick\image_0001`, and image folders with the same name from different test folders never collide.
+
+| Option | Meaning |
+| --- | --- |
+| `--per-folder` | Apply the count to every test folder separately: `20%` takes 20% of each test folder, `5` takes 5 from each. Without it the count is for all image folders together, so one test folder can end up with more test images than another. |
+| `--seed N` | Random seed. The same seed on the same data gives the same split. Without it a random seed is used and printed. |
+| `--copy` | Copy the image folders instead of moving them, so the source stays complete |
+| `--dry-run` | Only report what would be moved |
+
+Nothing is moved if one of the target folders already exists. The (now empty) test folders are left behind in the source folder. Close the annotation window first.
 
 ## Differences between the two variants
 
