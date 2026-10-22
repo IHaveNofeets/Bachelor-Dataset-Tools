@@ -38,7 +38,7 @@ def fix_quoted_args(argv):
 
 def load_classes():
     """CLASSES from groundTruth.py (read from the source, so it is always the list you have there)."""
-    source_file = Path(__file__).with_name("groundTruth.py")
+    source_file = Path(__file__).with_name("groundTruth - Tobias.py")
     try:
         tree = ast.parse(source_file.read_text(encoding="utf-8"))
     except OSError as e:
